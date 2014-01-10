@@ -4,12 +4,12 @@ pia_client_id = ~/.pia_client_id
 transmission_rc = /etc/transmission-daemon/settings.json
 
 [PIA]
-url = "https://www.privateinternetaccess.com/vpninfo/port_forward_assignment"
+url = https://www.privateinternetaccess.com/vpninfo/port_forward_assignment
 
 [Server]
-tun_device = "tun0"
-transmission_daemon = "transmission_daemon"
-openvpn_server = "openvpn"
-openvpn_gateway = "pia_ca_north"
-# If not using sudo (i.e. using root), then set sudo = ""
-sudo = "sudo" 
+tun_device = tun0
+transmission_daemon = transmission_daemon
+openvpn_server = openvpn
+openvpn_gateway = pia_ca_north
+# If not using sudo (i.e. using root), then set sudo = 
+sudo = sudo 
