@@ -115,7 +115,7 @@ def port_check(conf):
     port number.
 
     """
-    ip = ip_check()
+    ip = ip_check(conf)
     if ip is False:
         return False
     data = {"user": conf.user, "pass": conf.pw, "client_id": conf.client_id,
@@ -149,16 +149,16 @@ def service_start_stop(name, status, conf, args=None):
 
 
 def restart_vpn(conf):
-    service_start_stop(conf.transmission_daemon, "stop")
+    service_start_stop(conf.transmission_daemon, "stop", conf)
     control = False
     while control is False:
         # Continue restarting openvpn until we have a good IP address
         service_start_stop(conf.openvpn, "stop")
         service_start_stop(conf.openvpn, "start", conf.openvpn_gateway)
         sleep(20)
-        control = bind_addr_update()
+        control = bind_addr_update(conf)
         if control is True:
-            service_start_stop(conf.transmission_daemon, "start")
+            service_start_stop(conf.transmission_daemon, "start", conf)
 
 
 def port_update(conf):
@@ -166,17 +166,17 @@ def port_update(conf):
     the daemon, update the port, then restart
 
     """
-    port = port_check()
+    port = port_check(conf)
     if port is False:
         return False
     if str(port) not in open(conf.transmission_rc).read():
-        service_start_stop(conf.transmission_daemon, "stop")
+        service_start_stop(conf.transmission_daemon, "stop", conf)
         sleep(3)
         for line in fileinput.input(conf.transmission_rc, inplace=1):
             if "peer-port" in line:
                 line = '    "peer-port": {},'.format(port)
             sys.stdout.write(line)
-        service_start_stop(conf.transmission_daemon, "start")
+        service_start_stop(conf.transmission_daemon, "start", conf)
 
 
 def bind_addr_update(conf):
@@ -184,7 +184,7 @@ def bind_addr_update(conf):
     be running.
 
     """
-    ip = ip_check()
+    ip = ip_check(conf)
     if ip is False:
         return False
     if str(ip) not in open(conf.transmission_rc).read():
@@ -203,16 +203,17 @@ def daily():
 
 
 if __name__ == "__main__":
+    conf = get_config()
     t = Thread(target=daily)
     while True:
         if not t.isAlive():
-            restart_vpn()
+            restart_vpn(conf)
             t = Thread(target=daily)
             t.start()
         try:
-            port_update()
+            port_update(conf)
             # sleep 58 min. The call to the PIA API should be once per hour.
             sleep(3480)
         except URLError:
-            restart_vpn()
+            restart_vpn(conf)
             sleep(30)
