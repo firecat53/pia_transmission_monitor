@@ -69,28 +69,28 @@ def get_config():
     sudo:           "sudo" or ""
 
     """
-    config = configparser.ConfigParser()
+    conf = configparser.ConfigParser()
     locations = ("/etc/pia_transmission_monitor",
                  expanduser("~/.config/pia_transmission_monitor"))
-    conf = config.read([join(i, 'config.ini') for i in locations])
+    conf.read([join(i, 'config.ini') for i in locations])
     c_nt = namedtuple("c_nt", ["user", "pw", "client_id", "pia_url",
-                               "trans_rc_file", "tun_dev",
-                               "transmission_daemon", "openvpn_daemon",
+                               "transmission_rc", "tun_dev",
+                               "transmission_daemon", "openvpn_server",
                                "openvpn_gateway", "sudo"])
-    with open(expanduser(conf['File_Paths']['pia_credentials'])) as f:
+    with open(expanduser(conf.get('File_Paths', 'pia_credentials'))) as f:
         user, pw = filter(None, (line.rstrip() for line in f))
-    with open(expanduser(conf['File_Paths']['pia_client_id'])) as f:
+    with open(expanduser(conf.get('File_Paths', 'pia_client_id'))) as f:
         client_id = filter(None, (line.rstrip() for line in f))
     return c_nt(user,
                 pw,
                 client_id,
-                conf['PIA']['url'],
-                expanduser(conf['File_Paths']['transmission_rc']),
-                conf['Server']['tun_device'],
-                conf['Server']['transmission_daemon'],
-                conf['Server']['openvpn_server'],
-                conf['Server']['openvpn_gateway'],
-                conf['Server']['sudo'])
+                conf.get('PIA', 'url'),
+                expanduser(conf.get('File_Paths', 'transmission_rc')),
+                conf.get('Server', 'tun_device'),
+                conf.get('Server', 'transmission_daemon'),
+                conf.get('Server', 'openvpn_server'),
+                conf.get('Server', 'openvpn_gateway'),
+                conf.get('Server', 'sudo'))
 
 
 def ip_check(conf):
@@ -153,8 +153,8 @@ def restart_vpn(conf):
     control = False
     while control is False:
         # Continue restarting openvpn until we have a good IP address
-        service_start_stop(conf.openvpn, "stop")
-        service_start_stop(conf.openvpn, "start", conf.openvpn_gateway)
+        service_start_stop(conf.openvpn_server, "stop", conf)
+        service_start_stop(conf.openvpn_server, "start", conf, conf.openvpn_gateway)
         sleep(20)
         control = bind_addr_update(conf)
         if control is True:
