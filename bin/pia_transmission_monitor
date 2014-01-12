@@ -175,8 +175,8 @@ def port_update(conf):
     if port is False:
         return False
     # Update the port and make sure port forwarding is set. Authentication from
-    # ENV variable TR_AUTH (username:password)
-    args = shlex.split("transmission-remote -p {} -ne -m".format(port))
+    # netrc file
+    args = shlex.split("transmission-remote -p {} --netrc -m".format(port))
     Popen(args, stdout=PIPE).communicate()
 
 
