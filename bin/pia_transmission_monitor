@@ -101,7 +101,8 @@ def ip_check(conf):
     while True:
         try:
             ip = Popen(["ip", "addr", "show", conf.tun_dev],
-                       stdout=PIPE).communicate()[0].split('inet')[1].split()[0]
+                       stdout=PIPE).communicate()[0].decode()
+            ip = ip.split('inet')[1].split()[0]
             break
         except IndexError:
             # If tun0 doesn't exist
@@ -121,8 +122,8 @@ def port_check(conf):
     data = {"user": conf.user, "pass": conf.pw, "client_id": conf.client_id,
             "local_ip": ip}
     data = urlencode(data)
-    req = Request(conf.pia_url, data)
-    out = urlopen(req).read()
+    req = Request(conf.pia_url, data.encode())
+    out = urlopen(req).read().decode()
     port = ast.literal_eval(out)["port"]
     return port
 
@@ -145,7 +146,7 @@ def service_start_stop(name, status, conf, args=None):
     sudo = conf.sudo
     if sudo:
         cmd = [sudo] + cmd
-    print(Popen(cmd, stdout=PIPE).communicate()[0])
+    print(Popen(cmd, stdout=PIPE).communicate()[0].decode())
 
 
 def restart_vpn(conf):
