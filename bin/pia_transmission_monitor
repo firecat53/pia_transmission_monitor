@@ -149,12 +149,17 @@ def service_start_stop(name, status, conf, args=None):
 
 
 def restart_vpn(conf):
+    """Restarts openvpn and transmission. Updates the transmission bind address
+    after openvpn restarts.
+
+    """
     service_start_stop(conf.transmission_daemon, "stop", conf)
     control = False
     while control is False:
         # Continue restarting openvpn until we have a good IP address
         service_start_stop(conf.openvpn_server, "stop", conf)
-        service_start_stop(conf.openvpn_server, "start", conf, conf.openvpn_gateway)
+        service_start_stop(conf.openvpn_server, "start", conf,
+                           conf.openvpn_gateway)
         sleep(20)
         control = bind_addr_update(conf)
         if control is True:
@@ -162,21 +167,16 @@ def restart_vpn(conf):
 
 
 def port_update(conf):
-    """Update the port number in transmission if it changes. We have to kill
-    the daemon, update the port, then restart
+    """Update the port number in transmission.
 
     """
     port = port_check(conf)
     if port is False:
         return False
-    if str(port) not in open(conf.transmission_rc).read():
-        service_start_stop(conf.transmission_daemon, "stop", conf)
-        sleep(3)
-        for line in fileinput.input(conf.transmission_rc, inplace=1):
-            if "peer-port" in line:
-                line = '    "peer-port": {},'.format(port)
-            sys.stdout.write(line)
-        service_start_stop(conf.transmission_daemon, "start", conf)
+    # Update the port and make sure port forwarding is set. Authentication from
+    # ENV variable TR_AUTH (username:password)
+    args = shlex.split("transmission-remote -p {} -ne -m".format(port))
+    Popen(args, stdout=PIPE).communicate()
 
 
 def bind_addr_update(conf):
