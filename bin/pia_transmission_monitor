@@ -67,6 +67,7 @@ def get_config():
     openvpn_server:         name of openvpn service
     openvpn_gateway:        name of openvpn configuration file to use
     sudo:           "sudo" or ""
+    netrc:          Location of netrc file
 
     """
     conf = configparser.ConfigParser()
@@ -90,7 +91,8 @@ def get_config():
                 conf.get('Server', 'transmission_daemon'),
                 conf.get('Server', 'openvpn_server'),
                 conf.get('Server', 'openvpn_gateway'),
-                conf.get('Server', 'sudo'))
+                conf.get('Server', 'sudo'),
+                expanduser(conf.get('File_Paths', 'netrc')))
 
 
 def ip_check(conf):
@@ -176,7 +178,8 @@ def port_update(conf):
         return False
     # Update the port and make sure port forwarding is set. Authentication from
     # netrc file
-    args = shlex.split("transmission-remote -p {} --netrc -m".format(port))
+    args = shlex.split("transmission-remote -p {} "
+                       "--netrc {} -m".format(port, conf.netrc))
     Popen(args, stdout=PIPE).communicate()
 
 

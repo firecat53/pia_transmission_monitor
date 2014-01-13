@@ -2,6 +2,7 @@
 pia_credentials = /etc/openvpn/pia.cred
 pia_client_id = ~/.pia_client_id
 transmission_rc = /etc/transmission-daemon/settings.json
+netrc = ~/.netrc
 
 [PIA]
 url = https://www.privateinternetaccess.com/vpninfo/port_forward_assignment
