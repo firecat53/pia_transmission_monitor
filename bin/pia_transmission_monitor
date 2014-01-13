@@ -77,7 +77,7 @@ def get_config():
     c_nt = namedtuple("c_nt", ["user", "pw", "client_id", "pia_url",
                                "transmission_rc", "tun_dev",
                                "transmission_daemon", "openvpn_server",
-                               "openvpn_gateway", "sudo"])
+                               "openvpn_gateway", "sudo", "netrc"])
     with open(expanduser(conf.get('File_Paths', 'pia_credentials'))) as f:
         user, pw = filter(None, (line.rstrip() for line in f))
     with open(expanduser(conf.get('File_Paths', 'pia_client_id'))) as f:
