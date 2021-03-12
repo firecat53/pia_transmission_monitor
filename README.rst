@@ -1,3 +1,5 @@
+PROJECT IS ARCHIVED. NO LONGER FUNCTIONAL WITH NEW PIA API
+
 Port Forwarding Monitor for Transmission-daemon with PrivateInternetAccess VPN
 ==============================================================================
 
